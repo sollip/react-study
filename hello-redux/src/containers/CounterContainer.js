@@ -15,8 +15,8 @@ export function getRandomColor() {
     return colors[random];
 }
 const mapStateToProps = (state) => ({
-    color: state.color,
-    number: state.number
+    color: state.colorData.color,
+    number: state.numberData.number
 }); // action의 state를 props로 맵핑시켜준다.
 
 const mapDispatchToProps = (dispatch) => ({
