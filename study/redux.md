@@ -193,9 +193,40 @@ increment(3);
 ```
 
 ## handleActions
+- reducer에서 switch문을 사용하여 액션 타입을 구분해 주는 일을 도와준다.
+- 첫번째 파라미터 : 액션에 따라 실행할 함수
+- 두번째 파라미터 : state 기본 값
+```js
+const reducer = handleActions({
+    INCREMENT: (state, action) => ({
+        counter: state.counter + action.payload
+    }),
+    DECREMENT: (state, action) => ({
+        counter: state.counter - action.payload
+    })
+}, {counter: 0});
 ```
 
-```
+## Container components and Presentational components
+1. Container components
+    - 기능을 어떻게 진행할지 관련
+    - Presentational, Container components 둘다 가질 수 있고, 자신을 감싸는 div이외의 dom markup(style)을 가지지 않는다.
+    - data, behavior을 presentational or other container components에 제공해준다. 
+    - action을 부르고(call), callback을 presentational 컴포넌트에 넘긴다.
+    - 보통 Higher Order Components로 생성된다.
+        - react redux에서는 connect로 구현된다.
+2. Presentational components
+    - ui가 어떻게 보일 것인지 관련
+    - Presentational, Container components 둘다 가질 수 있고, 자신의 dom markup(style)을 가지고 있다.
+    - props를 통해서 data를 받거나, callback 함수를 받는다.
+    - 거의 state를 갖지 않으며, state가 있다면 UI의 상태와 관련되어있다.
+    - 상태라, 라이프사이클, 성능 최적화가 필요하지않으면 functional components로 만들어진다.
+
+- 이점
+    - 관심 분리 : ui 이해가 쉬워진다.
+    - 재사용 : presentaional components를 재사용하기 쉬워진다. 
+
+컨테이너 컴포넌트는 리덕스와 리액트를 결합하는 얇은 레이어다.
 
 
 # 리덕스 미들웨어
