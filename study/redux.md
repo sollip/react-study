@@ -170,7 +170,7 @@ const newList = list.set(0, Map({value: 10}))
 
 ![](./image/duck1_3.PNG)
 
-## redux-actions
+# redux-actions
 1. createAction
 2. handleActions
 
@@ -207,6 +207,90 @@ const reducer = handleActions({
 }, {counter: 0});
 ```
 
+
+
+
+# 리덕스 미들웨어
+- 액션을 디스패치했을 떄 리듀서에서 액션을 처리하기 전에 `전처리`과정 수행.
+- 콘솔 기록, 액션 취소, 다른 액션을 추가로 디스패치 등 ...
+```js
+// src/lib/loggerMiddleware.js
+const loggerMiddleware = store => next => action => {
+    
+}
+```
+- next(action) : 다음 처리할 미들 웨어 or 미들웨어가 없으면 리듀서로 넘겨준다.
+- store.dispatch : 액션을 처음부터 디스패치 한다.
+![](./image/그림1.png)
+
+### 미들웨어 작성
+1. 현재 상태
+2. 액션 정보
+3. 리듀서가 처리한 다음의 새로운 상태
+```js
+const loggerMiddleware = store => next => action => {
+    //현재 스토어 상태 값 
+    console.log('현재 상태', store.getState());
+    // 액션 기록
+    console.log('액션', action);
+
+    // 액션을 다음 미들웨어 또는 리듀서로 넘긴다.
+    const result = next(action);
+
+    console.log('다음 상태', store.getState());
+    console.log('\n');
+    return result;// 여기서 반환하는 값은 store.dispatch(ACTION_TYPE) 했을때의 결과로 설정됩니다
+}
+export default loggerMiddleware;
+```
+### 미들 웨어 적용
+- src/store.js
+
+#  비동기 작업을 처리하는 미들웨어 사용
+## redux-thunk
+- thunk?
+    - 특정 작업을 나중에 할 수 있도록 미루려로 함수 형태로 감싼 것
+    ```js
+    const x = 1 + 2; //즉시 실행됨
+    const foo = () => 1 + 2; // foo()가 실행될 떄 실행된다.
+    ```
+- redux-thunk?
+    - 미들웨어가 객체가 아닌 함수도 디스패치 할 수 있게 한다.
+    - 특정 액션을 디스패치한 후 몇 초 뒤에 반영 시키거나, 무시하게 만들 수 있다. (액션 객체로는 불가능)
+    ```js
+    const INCREMENT_COUNTER = 'INCREMENT_COUNTER';
+    function increment() {
+        return {
+            type: INCREMENT_COUNTER
+        }
+    }
+
+    function incrementAsync() {
+        return dispatch => { //dispatch를 파라미터로 가진 함수를 리턴한다.
+            // 1초뒤에 dispatch
+            setTimeout(() => {
+                dispatch(increment());
+            }, 1000);
+        };
+    }
+    ```
+
+    - 조건에 따라서 액션을 디스패치하거나 무시
+    ```js
+    function incrementIfOdd() {
+        return (dispatch, getState) => { 
+            // return 되는 함수에서 disptach, getState를 파라미터로 받게되면 스토어 상태에 접근 할 수 있다.
+            const {counter} = getState();
+            if(counter % 2 === 0) {
+                return;
+            }
+            dispatch(increment());
+        };
+    }
+    ```
+    - 액션 객체가 아니라 함수를 반환하는 함수는 액션 생성 함수가 아니라 `thunk 생성 함수`
+    - `thunk 생성 함수`에는 **dispatch**와 **getState**를 파라미터로 가지는 새로운 함수를 반환해야한다.
+
 ## Container components and Presentational components
 1. Container components
     - 기능을 어떻게 진행할지 관련
@@ -227,8 +311,3 @@ const reducer = handleActions({
     - 재사용 : presentaional components를 재사용하기 쉬워진다. 
 
 컨테이너 컴포넌트는 리덕스와 리액트를 결합하는 얇은 레이어다.
-
-
-# 리덕스 미들웨어
-- 액션을 디스패치했을 떄 리듀서에서 액션을 처리하기 전에 `전처리`과정 수행.
-- 콘솔 기록, 액션 취소, 다른 액션을 추가로 디스패치 등 ...
